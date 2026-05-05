@@ -9,7 +9,7 @@ A standalone AI expert for Stardew Valley built with a Retrieval-Augmented Gener
 - **Dockerized:** Easy orchestration of UI and AI services.
 
 ## 🛠 Tech Stack
-- **Frontend:** Next.js 15, Tailwind CSS, Vercel AI SDK
+- **Frontend:** Next.js 16, Tailwind CSS, Vercel AI SDK
 - **Backend/Vector Store:** Supabase (pgvector)
 - **AI Engine:** Ollama (Llama 3, Nomic Embed)
 - **Data Pipeline:** Python 3.12

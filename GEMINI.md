@@ -4,7 +4,7 @@
 This is a standalone AI Wiki application that uses a local AI engine (Ollama) to process data and answer queries based on the Stardew Valley Wiki.
 
 ### Tech Stack
-- **Web App:** Next.js 15+ (App Router), Tailwind CSS, Vercel AI SDK.
+- **Web App:** Next.js 16+ (App Router), Tailwind CSS, Vercel AI SDK.
 - **AI Orchestration:** `@ai-sdk/react` + `ollama-ai-provider`.
 - **Database:** Supabase (PostgreSQL + `pgvector` for vector storage).
 - **Inference Engine:** Ollama (Dockerized).
