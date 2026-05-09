@@ -1,11 +1,20 @@
 import requests
 import sys
+import os
+from dotenv import load_dotenv
+
+# Load .env from project root
+base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+env_path = os.path.join(base_dir, ".env")
+load_dotenv(env_path, override=True)
+
+WIKI_BASE_URL = os.environ.get("WIKI_BASE_URL", "https://stardewvalleywiki.com")
 
 def fetch_wikitext(page_title):
     """
-    Fetches the raw Wikitext for a given page from the Stardew Valley Wiki.
+    Fetches the raw Wikitext for a given page from the configured Wiki.
     """
-    base_url = "https://stardewvalleywiki.com/mediawiki/api.php"
+    api_url = f"{WIKI_BASE_URL}/mediawiki/api.php"
     params = {
         "action": "query",
         "prop": "revisions",

@@ -35,7 +35,12 @@ def process_page(page_title: str):
 
     # 3. Chunk, Embed, and Store
     print("Step 3: Chunking, Embedding, and Storing in Supabase...")
-    embed_and_store(markdown, page_title, {"source": "wiki", "original_title": page_title})
+    game_name = os.environ.get("GAME_NAME", "Stardew Valley")
+    embed_and_store(markdown, page_title, {
+        "source": "wiki", 
+        "original_title": page_title,
+        "game_name": game_name
+    })
     
     print(f"--- Finished Processing: {page_title} ---")
 

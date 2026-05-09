@@ -1,37 +1,41 @@
-# Project Context: Gaming AI Expert (Stardew Valley)
+# Project Context: Gaming AI Expert
 
-## Architecture: Local RAG (Retrieval-Augmented Generation)
-This is a standalone AI Wiki application that uses a local AI engine (Ollama) to process data and answer queries based on the Stardew Valley Wiki.
+## Architecture: Multi-Game Local RAG
+This is a modular AI application designed to provide expert wiki knowledge for multiple gaming titles using a local inference engine (Ollama) and a vector databank (Supabase).
 
 ### Tech Stack
 - **Web App:** Next.js 16+ (App Router), Tailwind CSS, Vercel AI SDK.
 - **AI Orchestration:** `@ai-sdk/react` + `ollama-ai-provider`.
 - **Database:** Supabase (PostgreSQL + `pgvector` for vector storage).
 - **Inference Engine:** Ollama (Dockerized).
-  - LLM: `llama3` (for cleaning data and chat).
+  - LLM: `phi3:mini` (optimized for speed and accuracy in RAG).
   - Embeddings: `nomic-embed-text` (768 dimensions).
 - **Pipeline:** Python 3.12 (requests, ollama-python, supabase-py).
 
 ### Core Components
-1. **Pipeline (`pipeline/scripts/`)**:
-   - `fetch_wiki.py`: Pulls raw Wikitext from MediaWiki API.
-   - `clean_data.py`: Uses local `llama3` to convert Wikitext to clean Markdown.
+1. **Generalized Pipeline (`pipeline/scripts/`)**:
+   - `fetch_wiki.py`: Pulls raw Wikitext from any MediaWiki API defined in `.env`.
+   - `clean_data.py`: Uses local LLM to convert Wikitext to clean Markdown.
    - `chunk_data.py`: Semantic splitting using `MarkdownHeaderChunker`.
-   - `embed_data.py`: Generates `nomic-embed-text` vectors and upserts to Supabase.
-   - `process_page.py`: Master script orchestrating the full flow.
+   - `embed_data.py`: Generates vectors and upserts to Supabase.
+   - `process_page.py`: Orchestrates the full pipeline for a page. **Now adds `game_name` to metadata.**
+   - `bulk_ingest.py`: Orchestrates mass ingestion for the target game.
+
+### Discovery & UI
+- **Dynamic Game Discovery:** The landing page fetches available games via `/api/games`. It cross-references the database against a high-quality list of supported games to ensure only active experts are displayed.
+- **Metadata Requirement:** All ingested documents MUST include `game_name` in their metadata for proper filtering in the UI.
 2. **Web App (`apps/web/`)**:
-   - `src/app/api/chat/route.ts`: RAG-enabled API that performs similarity search in Supabase and streams responses from Ollama.
-   - `src/app/page.tsx`: Modern chat UI.
-3. **Database (`supabase/`)**:
-   - `setup_vector_store.sql`: Enables `pgvector` and creates `documents` table.
-   - `create_search_function.sql`: Defines `match_documents` RPC for similarity search.
+   - `src/app/api/chat/route.ts`: Generic RAG-enabled API. Uses `GAME_NAME` and `WIKI_BASE_URL` for identity and hyperlinking.
+   - `src/app/page.tsx`: Modern chat UI with Chrome AI aesthetic and markdown rendering.
 
 ### Current State
-- **Docker:** Configured with `docker-compose.yml` for local development. `allowedDevOrigins` is configured for Cloud Shell.
-- **Ingestion:** "Crops" has been ingested. "Villagers" ingestion was started.
-- **Repo:** GitHub repository `Momen-Mawad/gaming-ai-expert` created and synced.
+- **Docker:** Fully configured with `phi3:mini` and `nomic-embed-text`.
+- **Target Game:** Currently configured for **Stardew Valley**.
+- **Ingestion:** Core Stardew Valley databank complete (88+ pages).
+- **Architecture:** Fully generalized. To add a new game, simply change the `.env` configuration and run the ingestion pipeline.
 
 ### Future Guidance
-- Always use `OLLAMA_HOST=http://localhost:11434` for local scripts and `http://ollama:11434` inside Docker.
-- Ensure the Supabase `match_documents` function matches the 768-dimension embeddings from `nomic-embed-text`.
-- Prioritize GPU acceleration in `docker-compose.yml` if moving to a machine with NVIDIA hardware.
+- **Adding a Game:** Use the `game-data-manager` skill. Update `GAME_NAME` and `WIKI_BASE_URL` in `.env`, then run the ingestion scripts.
+- **Strict RAG:** Always maintain "Strict RAG Enforcement". The AI MUST only answer using the ingested context.
+- **Model Selection:** `phi3:mini` is the preferred model for local inference speed.
+- **Data Isolation:** If adding multiple games to the same database, consider adding a `game_id` column to the `documents` table.
